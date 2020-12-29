@@ -1,20 +1,28 @@
 package com.kdaydin.sixtcars.ui.map
 
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.kdaydin.sixtcars.R
 import com.kdaydin.sixtcars.databinding.ActivityMapsBinding
 import com.kdaydin.sixtcars.ui.base.BaseActivity
 import com.kdaydin.sixtcars.ui.base.VMState
+import com.kdaydin.sixtcars.utils.extentions.dp
 import org.koin.android.ext.android.get
 
-class MapsActivity : OnMapReadyCallback,BaseActivity<MapsViewModel,ActivityMapsBinding>(){
+
+class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMapsBinding>() {
 
     private lateinit var mMap: GoogleMap
 
@@ -22,8 +30,56 @@ class MapsActivity : OnMapReadyCallback,BaseActivity<MapsViewModel,ActivityMapsB
         super.onCreate(savedInstanceState)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
+            .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        viewModel?.carData?.observe(this) {
+            val builder = LatLngBounds.Builder()
+            it?.let {
+                it.forEach { car ->
+                    Glide.with(this)
+                        .asBitmap()
+                        .load(car.carImageUrl)
+                        .circleCrop()
+                        .dontTransform()
+                        .into(object : SimpleTarget<Bitmap?>() {
+                            override fun onResourceReady(
+                                resource: Bitmap,
+                                transition: Transition<in Bitmap?>?
+                            ) {
+                                val marker = MarkerOptions().icon(
+                                    BitmapDescriptorFactory.fromBitmap(
+                                        Bitmap.createScaledBitmap(resource, 60.dp, 40.dp, true)
+                                    )
+                                ).title(car.name).position(
+                                    LatLng(
+                                        car.latitude?.toDouble() ?: 0.0,
+                                        car.longitude?.toDouble() ?: 0.0
+                                    )
+                                )
+                                mMap.addMarker(marker)
+                                builder.include(marker.position)
+                                val bounds = builder.build()
+                                val cu = CameraUpdateFactory.newLatLngBounds(bounds, 0)
+                                mMap.animateCamera(cu)
+                            }
+
+                            override fun onLoadFailed(errorDrawable: Drawable?) {
+                                mMap.addMarker(
+                                    MarkerOptions().icon(
+                                        BitmapDescriptorFactory.defaultMarker()
+                                    ).title(car.name).position(
+                                        LatLng(
+                                            car.latitude?.toDouble() ?: 0.0,
+                                            car.longitude?.toDouble() ?: 0.0
+                                        )
+                                    )
+                                )
+                            }
+                        })
+                }
+            }
+        }
     }
 
     /**
@@ -38,10 +94,6 @@ class MapsActivity : OnMapReadyCallback,BaseActivity<MapsViewModel,ActivityMapsB
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         viewModel?.getCars()
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
     }
 
     override fun getLayoutRes(): Int = R.layout.activity_maps
