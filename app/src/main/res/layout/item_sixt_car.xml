@@ -7,6 +7,8 @@
         <variable
             name="sixtCar"
             type="com.kdaydin.sixtcars.data.entities.SixtCar" />
+
+        <import type="com.kdaydin.sixtcars.data.entities.FuelType" />
     </data>
 
     <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -42,10 +44,12 @@
 
             <TextView
                 android:id="@+id/tvCarName"
-                style="@style/CairoSemiBold.16.BlueGray"
+                style="@style/CairoBold.16.BlueGray"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="12dp"
                 android:text="@{sixtCar.name}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivCarImage"
@@ -57,6 +61,8 @@
                 style="@style/CairoSemiBold.16.BlueGray"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="12dp"
                 android:text="@{sixtCar.modelName}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivCarImage"
@@ -66,8 +72,10 @@
             <TextView
                 android:id="@+id/tvCarFuelType"
                 style="@style/CairoSemiBold.16.BlueGray"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="12dp"
                 android:text="@{sixtCar.fuelType.type}"
                 app:layout_constraintEnd_toStartOf="@+id/tvCarTransmission"
                 app:layout_constraintStart_toEndOf="@id/ivCarImage"
@@ -79,11 +87,42 @@
                 style="@style/CairoSemiBold.16.BlueGray"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:singleLine="true"
                 android:text="@{sixtCar.transmission.transmission}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvCarFuelType"
                 app:layout_constraintTop_toBottomOf="@id/tvCarModel"
                 tools:text="Automatic" />
+
+            <ImageView
+                android:id="@+id/ivFuelType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@{sixtCar.fuelType==FuelType.E ? @drawable/ic_ev_station : @drawable/ic_gas_station}"
+                app:layout_constraintTop_toBottomOf="@id/tvCarFuelType"
+                app:layout_constraintStart_toEndOf="@id/ivCarImage"
+                android:layout_marginStart="8dp"
+                tools:src="@drawable/ic_ev_station"
+                app:layout_constraintEnd_toStartOf="@+id/lpiFuel"/>
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/lpiFuel"
+                style="@style/Widget.MaterialComponents.LinearProgressIndicator"
+                progress="@{sixtCar.fuelLevel}"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="12dp"
+                android:max="100"
+                app:indicatorColor="@color/blue_grey_700"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivFuelType"
+                app:layout_constraintTop_toBottomOf="@id/tvCarFuelType"
+                app:trackColor="@color/blue_grey_200"
+                app:trackCornerRadius="2dp"
+                app:trackThickness="4dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

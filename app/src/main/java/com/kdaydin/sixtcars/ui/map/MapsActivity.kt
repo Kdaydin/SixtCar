@@ -1,10 +1,12 @@
 package com.kdaydin.sixtcars.ui.map
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
@@ -16,9 +18,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MarkerOptions
 import com.kdaydin.sixtcars.R
 import com.kdaydin.sixtcars.databinding.ActivityMapsBinding
 import com.kdaydin.sixtcars.ui.adapter.CarListAdapter
@@ -40,50 +40,7 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
         mapFragment.getMapAsync(this)
 
         viewModel?.carData?.observe(this) {
-            val builder = LatLngBounds.Builder()
             it?.let {
-                it.forEach { car ->
-                    Glide.with(this)
-                        .asBitmap()
-                        .load(car.carImageUrl)
-                        .circleCrop()
-                        .dontTransform()
-                        .into(object : SimpleTarget<Bitmap?>() {
-                            override fun onResourceReady(
-                                resource: Bitmap,
-                                transition: Transition<in Bitmap?>?
-                            ) {
-                                val marker = MarkerOptions().icon(
-                                    BitmapDescriptorFactory.fromBitmap(
-                                        Bitmap.createScaledBitmap(resource, 60.dp, 40.dp, true)
-                                    )
-                                ).title(car.name).position(
-                                    LatLng(
-                                        car.latitude?.toDouble() ?: 0.0,
-                                        car.longitude?.toDouble() ?: 0.0
-                                    )
-                                )
-                                mMap.addMarker(marker)
-                                builder.include(marker.position)
-                                val bounds = builder.build()
-                                val cu = CameraUpdateFactory.newLatLngBounds(bounds, 12.dp)
-                                mMap.animateCamera(cu)
-                            }
-
-                            override fun onLoadFailed(errorDrawable: Drawable?) {
-                                mMap.addMarker(
-                                    MarkerOptions().icon(
-                                        BitmapDescriptorFactory.defaultMarker()
-                                    ).title(car.name).position(
-                                        LatLng(
-                                            car.latitude?.toDouble() ?: 0.0,
-                                            car.longitude?.toDouble() ?: 0.0
-                                        )
-                                    )
-                                )
-                            }
-                        })
-                }
                 binding?.rvCarList?.apply {
                     adapter = CarListAdapter(it)
                     val snapHelper: SnapHelper = LinearSnapHelper()
@@ -99,7 +56,14 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
                                 val centerView: View =
                                     snapHelper.findSnapView(layoutManager) ?: View(context)
                                 val pos: Int? = layoutManager?.getPosition(centerView)
-                                Log.e("Snapped Item Position:", "" + pos)
+
+                                val marker = viewModel?.markers?.value?.get(pos ?: 0)
+                                mMap.animateCamera(
+                                    CameraUpdateFactory.newLatLngZoom(
+                                        marker?.position, 15f
+                                    )
+                                )
+                                marker?.showInfoWindow()
                             }
                         }
                     })
@@ -107,7 +71,64 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
             }
 
         }
+        viewModel?.markerOptions?.observe(this) { options ->
+            if (options.isNullOrEmpty().not()) {
+                val builder = LatLngBounds.Builder()
+                options.forEach { opt ->
+                    val marker = mMap.addMarker(opt)
+                    builder.include(marker.position)
+                    viewModel?.markers?.value?.add(marker)
+                }
+                val bounds = builder.build()
+                val cu = CameraUpdateFactory.newLatLngBounds(bounds, 12.dp)
+                mMap.animateCamera(cu)
+                setCarImages()
+            }
+        }
     }
+
+    private fun setCarImages() {
+        viewModel?.markers?.value?.forEachIndexed { index, marker ->
+            Glide.with(this)
+                .asBitmap()
+                .load(viewModel?.carData?.value?.get(index)?.carImageUrl)
+                .circleCrop()
+                .dontTransform()
+                .into(object : SimpleTarget<Bitmap?>() {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap?>?
+                    ) {
+                        val ratio =
+                            (resource.height.toFloat() / resource.width.toFloat())
+                        val width = 48.dp
+                        val height = (48.dp * ratio).toInt()
+                        val bitmap = Bitmap.createScaledBitmap(
+                            resource,
+                            width,
+                            height,
+                            true
+                        )
+                        marker.setIcon(
+                            BitmapDescriptorFactory.fromBitmap(bitmap)
+                        )
+                    }
+
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                        marker.setIcon(
+                            BitmapDescriptorFactory.fromBitmap(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_car_48dp,
+                                    applicationContext.theme
+                                )?.toBitmap()
+                            )
+                        )
+                    }
+                })
+        }
+    }
+
 
     /**
      * Manipulates the map once available.
@@ -121,6 +142,13 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.setPadding(16.dp, 16.dp, 16.dp, 200.dp)
+        mMap.setOnMarkerClickListener { marker ->
+            val index = viewModel?.markers?.value?.indexOfFirst { mrk ->
+                mrk.position == marker.position
+            }
+            binding?.rvCarList?.smoothScrollToPosition(index ?: 0)
+            false
+        }
         viewModel?.getCars()
     }
 

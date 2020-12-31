@@ -43,8 +43,7 @@
 
         <activity
             android:name=".ui.map.MapsActivity"
-            android:label="@string/title_activity_maps">
-        </activity>
+            android:theme="@style/Theme.SixtCars" />
     </application>
 
 </manifest>
