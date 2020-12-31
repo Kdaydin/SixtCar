@@ -14,7 +14,20 @@
         <!-- Customize your theme here. -->
         <item name="android:screenOrientation">portrait</item>
     </style>
-    
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.App.Corner16Radius" parent="">
+        <item name="cornerRadius">16dp</item>
+    </style>
+
     <style name="SplashStyle" parent="Theme.SixtCars">
         <item name="android:windowBackground">@drawable/bg_splash</item>
         <item name="android:screenOrientation">portrait</item>
@@ -30,6 +43,14 @@
 
     <style name="CairoBold">
         <item name="fontFamily">@font/cairo_bold</item>
+    </style>
+
+    <style name="Cairo.16">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Cairo.16.BlueGray">
+        <item name="android:textColor">@color/blue_grey_700</item>
     </style>
 
     <style name="CairoSemiBold.16">

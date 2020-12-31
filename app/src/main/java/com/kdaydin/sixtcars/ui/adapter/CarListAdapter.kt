@@ -5,8 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.kdaydin.sixtcars.data.entities.SixtCar
 import com.kdaydin.sixtcars.databinding.ItemSixtCarBinding
+import com.kdaydin.sixtcars.ui.listener.CarListButtonListener
 
-class CarListAdapter(val cars: List<SixtCar>) :
+class CarListAdapter(
+    val cars: List<SixtCar>,
+    val listener: CarListButtonListener
+) :
     RecyclerView.Adapter<CarListAdapter.CarViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarViewHolder {
@@ -25,6 +29,7 @@ class CarListAdapter(val cars: List<SixtCar>) :
         fun bind(item: SixtCar) {
             with(binding) {
                 this.sixtCar = item
+                this.clickListener = listener
                 executePendingBindings()
             }
         }

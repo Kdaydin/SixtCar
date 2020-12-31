@@ -8,6 +8,10 @@
             name="sixtCar"
             type="com.kdaydin.sixtcars.data.entities.SixtCar" />
 
+        <variable
+            name="clickListener"
+            type="com.kdaydin.sixtcars.ui.listener.CarListButtonListener" />
+
         <import type="com.kdaydin.sixtcars.data.entities.FuelType" />
     </data>
 
@@ -16,12 +20,9 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
+        android:layout_margin="@dimen/margin_12dp"
         app:cardBackgroundColor="@color/orange_200"
-        app:cardCornerRadius="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:cardCornerRadius="@dimen/margin_16dp"
         app:strokeColor="@color/blue_grey_200"
         app:strokeWidth="2dp">
 
@@ -35,7 +36,6 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:scaleType="centerInside"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toStartOf="@+id/tvCarName"
                 app:layout_constraintStart_toStartOf="parent"
@@ -47,9 +47,9 @@
                 style="@style/CairoBold.16.BlueGray"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="@dimen/margin_8dp"
+                android:layout_marginTop="@dimen/margin_8dp"
+                android:layout_marginEnd="@dimen/margin_12dp"
                 android:text="@{sixtCar.name}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivCarImage"
@@ -61,8 +61,8 @@
                 style="@style/CairoSemiBold.16.BlueGray"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="@dimen/margin_8dp"
+                android:layout_marginEnd="@dimen/margin_12dp"
                 android:text="@{sixtCar.modelName}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ivCarImage"
@@ -74,8 +74,8 @@
                 style="@style/CairoSemiBold.16.BlueGray"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="@dimen/margin_8dp"
+                android:layout_marginEnd="@dimen/margin_12dp"
                 android:text="@{sixtCar.fuelType.type}"
                 app:layout_constraintEnd_toStartOf="@+id/tvCarTransmission"
                 app:layout_constraintStart_toEndOf="@id/ivCarImage"
@@ -87,7 +87,7 @@
                 style="@style/CairoSemiBold.16.BlueGray"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
+                android:layout_marginEnd="@dimen/margin_12dp"
                 android:singleLine="true"
                 android:text="@{sixtCar.transmission.transmission}"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -99,12 +99,12 @@
                 android:id="@+id/ivFuelType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_8dp"
                 android:src="@{sixtCar.fuelType==FuelType.E ? @drawable/ic_ev_station : @drawable/ic_gas_station}"
-                app:layout_constraintTop_toBottomOf="@id/tvCarFuelType"
+                app:layout_constraintEnd_toStartOf="@+id/lpiFuel"
                 app:layout_constraintStart_toEndOf="@id/ivCarImage"
-                android:layout_marginStart="8dp"
-                tools:src="@drawable/ic_ev_station"
-                app:layout_constraintEnd_toStartOf="@+id/lpiFuel"/>
+                app:layout_constraintTop_toBottomOf="@id/tvCarFuelType"
+                tools:src="@drawable/ic_ev_station" />
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/lpiFuel"
@@ -112,9 +112,9 @@
                 progress="@{sixtCar.fuelLevel}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="@dimen/margin_8dp"
+                android:layout_marginTop="@dimen/margin_8dp"
+                android:layout_marginEnd="@dimen/margin_12dp"
                 android:max="100"
                 app:indicatorColor="@color/blue_grey_700"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -123,6 +123,38 @@
                 app:trackColor="@color/blue_grey_200"
                 app:trackCornerRadius="2dp"
                 app:trackThickness="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDirection"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_16dp"
+                android:layout_marginEnd="@dimen/margin_8dp"
+                android:layout_marginBottom="@dimen/margin_8dp"
+                android:onClick="@{() -> clickListener.onGetDirectionClicked(sixtCar)}"
+                android:text="@string/direction"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/btnInfo"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivCarImage"
+                app:layout_constraintHorizontal_weight=".6"
+                tools:text="Get Direction" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnInfo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintHorizontal_weight=".4"
+                android:layout_marginStart="@dimen/margin_8dp"
+                android:layout_marginEnd="@dimen/margin_16dp"
+                android:layout_marginBottom="@dimen/margin_8dp"
+                android:onClick="@{() -> clickListener.onGetInfoClicked(sixtCar)}"
+                android:text="@string/car_info"
+                app:layout_constraintTop_toTopOf="@id/btnDirection"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btnDirection"
+                tools:text="Info" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

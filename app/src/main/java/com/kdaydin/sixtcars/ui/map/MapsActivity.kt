@@ -1,8 +1,9 @@
 package com.kdaydin.sixtcars.ui.map
 
-import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
@@ -20,18 +21,22 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLngBounds
 import com.kdaydin.sixtcars.R
+import com.kdaydin.sixtcars.data.entities.SixtCar
 import com.kdaydin.sixtcars.databinding.ActivityMapsBinding
 import com.kdaydin.sixtcars.ui.adapter.CarListAdapter
 import com.kdaydin.sixtcars.ui.base.BaseActivity
 import com.kdaydin.sixtcars.ui.base.VMState
+import com.kdaydin.sixtcars.ui.car_detail.CarDetailBottomSheet
+import com.kdaydin.sixtcars.ui.listener.CarListButtonListener
 import com.kdaydin.sixtcars.utils.extentions.dp
 import org.koin.android.ext.android.get
 
 
 class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMapsBinding>() {
 
+    private var permissionDenied = false
     private lateinit var mMap: GoogleMap
-
+    private lateinit var carDetailBottomSheet: CarDetailBottomSheet
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -42,7 +47,22 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
         viewModel?.carData?.observe(this) {
             it?.let {
                 binding?.rvCarList?.apply {
-                    adapter = CarListAdapter(it)
+                    adapter = CarListAdapter(it, object : CarListButtonListener {
+                        override fun onGetDirectionClicked(item: SixtCar) {
+                            val uri =
+                                Uri.parse("google.navigation:q=${item.latitude},${item.longitude}")
+                            val mapIntent = Intent(Intent.ACTION_VIEW, uri)
+                            mapIntent.setPackage("com.google.android.apps.maps")
+                            startActivity(mapIntent)
+                        }
+
+                        override fun onGetInfoClicked(item: SixtCar) {
+                            carDetailBottomSheet = CarDetailBottomSheet.create(item)
+                            supportFragmentManager.executePendingTransactions()
+                            carDetailBottomSheet.show(supportFragmentManager, item.modelIdentifier)
+                        }
+
+                    })
                     val snapHelper: SnapHelper = LinearSnapHelper()
                     snapHelper.attachToRecyclerView(this)
 
@@ -121,7 +141,7 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
                                     resources,
                                     R.drawable.ic_car_48dp,
                                     applicationContext.theme
-                                )?.toBitmap()
+                                )?.toBitmap(32.dp, 32.dp)
                             )
                         )
                     }
@@ -141,7 +161,7 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        mMap.setPadding(16.dp, 16.dp, 16.dp, 200.dp)
+        mMap.setPadding(16.dp, 16.dp, 16.dp, 240.dp)
         mMap.setOnMarkerClickListener { marker ->
             val index = viewModel?.markers?.value?.indexOfFirst { mrk ->
                 mrk.position == marker.position
@@ -152,10 +172,12 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
         viewModel?.getCars()
     }
 
+
     override fun getLayoutRes(): Int = R.layout.activity_maps
 
     override fun getViewModelType(): MapsViewModel = get()
 
     override fun onStateChanged(state: VMState?) {
     }
+
 }
