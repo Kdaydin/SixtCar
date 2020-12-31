@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout>
+
+    <data>
+
+        <variable
+            name="sixtCar"
+            type="com.kdaydin.sixtcars.data.entities.SixtCar" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        app:cardBackgroundColor="@color/orange_200"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/blue_grey_200"
+        app:strokeWidth="2dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/ivCarImage"
+                imageUrl="@{sixtCar.carImageUrl}"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="centerInside"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/tvCarName"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_launcher_foreground" />
+
+            <TextView
+                android:id="@+id/tvCarName"
+                style="@style/CairoSemiBold.16.BlueGray"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@{sixtCar.name}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivCarImage"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Barbarella" />
+
+            <TextView
+                android:id="@+id/tvCarModel"
+                style="@style/CairoSemiBold.16.BlueGray"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{sixtCar.modelName}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivCarImage"
+                app:layout_constraintTop_toBottomOf="@id/tvCarName"
+                tools:text="BMW ActiveE" />
+
+            <TextView
+                android:id="@+id/tvCarFuelType"
+                style="@style/CairoSemiBold.16.BlueGray"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{sixtCar.fuelType.type}"
+                app:layout_constraintEnd_toStartOf="@+id/tvCarTransmission"
+                app:layout_constraintStart_toEndOf="@id/ivCarImage"
+                app:layout_constraintTop_toBottomOf="@id/tvCarModel"
+                tools:text="Electric" />
+
+            <TextView
+                android:id="@+id/tvCarTransmission"
+                style="@style/CairoSemiBold.16.BlueGray"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{sixtCar.transmission.transmission}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvCarFuelType"
+                app:layout_constraintTop_toBottomOf="@id/tvCarModel"
+                tools:text="Automatic" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>

@@ -9,12 +9,14 @@ data class SixtCar(
     val group: String? = "",
     val color: String? = "",
     val series: String? = "",
-    val fuelType: String? = "",
+    val fuelType: FuelType? = FuelType.NA,
     val fuelLevel: Float? = 0f,
-    val transmission: String? = "",
+    val transmission: Transmission? = Transmission.NA,
     val licensePlate: String? = "",
     val latitude: Float? = 0f,
     val longitude: Float? = 0f,
     val innerCleanliness: String? = "",
     val carImageUrl: String? = "",
-)
+) {
+
+}

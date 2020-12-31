@@ -3,6 +3,11 @@ package com.kdaydin.sixtcars.ui.map
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SnapHelper
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -16,6 +21,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.kdaydin.sixtcars.R
 import com.kdaydin.sixtcars.databinding.ActivityMapsBinding
+import com.kdaydin.sixtcars.ui.adapter.CarListAdapter
 import com.kdaydin.sixtcars.ui.base.BaseActivity
 import com.kdaydin.sixtcars.ui.base.VMState
 import com.kdaydin.sixtcars.utils.extentions.dp
@@ -60,7 +66,7 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
                                 mMap.addMarker(marker)
                                 builder.include(marker.position)
                                 val bounds = builder.build()
-                                val cu = CameraUpdateFactory.newLatLngBounds(bounds, 0)
+                                val cu = CameraUpdateFactory.newLatLngBounds(bounds, 12.dp)
                                 mMap.animateCamera(cu)
                             }
 
@@ -78,7 +84,28 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
                             }
                         })
                 }
+                binding?.rvCarList?.apply {
+                    adapter = CarListAdapter(it)
+                    val snapHelper: SnapHelper = LinearSnapHelper()
+                    snapHelper.attachToRecyclerView(this)
+
+                    this.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                        override fun onScrollStateChanged(
+                            recyclerView: RecyclerView,
+                            newState: Int
+                        ) {
+                            super.onScrollStateChanged(recyclerView, newState)
+                            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                                val centerView: View =
+                                    snapHelper.findSnapView(layoutManager) ?: View(context)
+                                val pos: Int? = layoutManager?.getPosition(centerView)
+                                Log.e("Snapped Item Position:", "" + pos)
+                            }
+                        }
+                    })
+                }
             }
+
         }
     }
 
@@ -93,6 +120,7 @@ class MapsActivity : OnMapReadyCallback, BaseActivity<MapsViewModel, ActivityMap
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.setPadding(16.dp, 16.dp, 16.dp, 200.dp)
         viewModel?.getCars()
     }
 
